@@ -9,6 +9,22 @@
 
 ---
 
+## 📋 Level 3 Submission Summary
+
+| Requirement | Value / Link |
+|---|---|
+| **Public GitHub Repository** | [https://github.com/ruhisharma-star/VeloStell](https://github.com/ruhisharma-star/VeloStell) |
+| **Commit Count** | **13 Meaningful Commits** (Exceeds 10+ requirement) |
+| **Live Deployed Website** | [https://velo-stell.vercel.app/](https://velo-stell.vercel.app/) |
+| **Demo Video (1-2 min)** | [Watch Demo Video](https://photos.app.goo.gl/pVN563k5Xm61M9859) |
+| **Contract Deployment Address** | [`CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z`](https://stellar.expert/explorer/testnet/contract/CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z) |
+| **Contract Interaction Tx Hash** | [`7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d`](https://stellar.expert/explorer/testnet/tx/7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d) |
+| **Mobile Responsive UI** | Verified at 360px & 768px (`image-6.png`) |
+| **CI/CD Pipeline** | GitHub Actions Green Run (`image-7.png`) |
+| **Contract Unit Tests** | 10 Passing Tests (`image-8.png`) |
+
+---
+
 ## 2. Overview
 
 Velostell is built for decentralized application developers, organizations, and web3 users who require trustless, automated payment settlement primitives beyond basic single-recipient value transfers. By leveraging Soroban smart contracts, Velostell enables non-custodial direct payments with embedded reference memos, atomic multi-recipient split payments validated via basis point calculations, and automated time-locked payment streams where recipients claim pre-funded installments over defined schedules.
