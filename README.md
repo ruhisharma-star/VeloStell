@@ -157,9 +157,9 @@ During smart contract execution, Soroban event logs are published using `env.eve
 | Field | Value |
 |---|---|
 | **Network** | Stellar Testnet |
-| **Velostell Contract ID** | `CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z` <!-- TODO: PASTE_CONTRACT_ID_HERE --> |
+| **Velostell Contract ID** | `CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z` |
 | **Native XLM SAC Contract ID** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
-| **Explorer Link** | [View Contract on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z) <!-- TODO: PASTE_CONTRACT_ID_HERE --> |
+| **Explorer Link** | [View Contract on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDIARVPAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z) |
 
 ### Deployment Commands Executed (`deploy.sh`)
 
@@ -190,10 +190,10 @@ XLM_SAC_ID=$(soroban contract id asset --asset native --network testnet)
 
 | Action | Transaction Hash | Explorer Link |
 |---|---|---|
-| **Contract Deployment** | `ab8513b847ce168c2f66008f3596b97283c8dc82c71702933e42d12b3a6349d4` <!-- TODO: PASTE_TX_HASH_HERE --> | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/ab8513b847ce168c2f66008f3596b97283c8dc82c71702933e42d12b3a6349d4) <!-- TODO: PASTE_TX_HASH_HERE --> |
-| **WASM Upload** | `e502852db5bb23500f55a653edf2a47fb03be56a303b4b1cfac77bed9ff94f78` <!-- TODO: PASTE_TX_HASH_HERE --> | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/e502852db5bb23500f55a653edf2a47fb03be56a303b4b1cfac77bed9ff94f78) <!-- TODO: PASTE_TX_HASH_HERE --> |
-| **Direct Payment Sent** | `7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d` <!-- TODO: PASTE_TX_HASH_HERE --> | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d) <!-- TODO: PASTE_TX_HASH_HERE --> |
-| **Stream Created & Claimed** | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2` <!-- TODO: PASTE_TX_HASH_HERE --> | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2) <!-- TODO: PASTE_TX_HASH_HERE --> |
+| **Contract Deployment** | `ab8513b847ce168c2f66008f3596b97283c8dc82c71702933e42d12b3a6349d4` | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/ab8513b847ce168c2f66008f3596b97283c8dc82c71702933e42d12b3a6349d4) |
+| **WASM Upload** | `e502852db5bb23500f55a653edf2a47fb03be56a303b4b1cfac77bed9ff94f78` | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/e502852db5bb23500f55a653edf2a47fb03be56a303b4b1cfac77bed9ff94f78) |
+| **Direct Payment Sent** | `7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d` | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d) |
+| **Stream Created & Claimed** | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2` | [View Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2) |
 
 ---
 
