@@ -208,7 +208,7 @@ XLM_SAC_ID=$(soroban contract id asset --asset native --network testnet)
 10. `test_double_claim_same_installment_fails`: Prevents duplicate installment claims within the same time interval.
 
 ### Test Results Screenshot
-![Test Output Output](./image-1.png) <!-- TODO: PASTE_TEST_OUTPUT_SCREENSHOT_HERE -->
+![Test Output](image-8.png)
 
 ---
 
@@ -229,7 +229,7 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
    - Runs `npm run build` (Next.js production build verification).
 
 ### Pipeline Screenshot
-![CI Pipeline Green Run](image-2.png)
+![CI Pipeline Green Run](image-7.png)
 
 ---
 
@@ -237,12 +237,13 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
 
 | Description | Screenshot |
 |---|---|
-| **Contract Unit Test Output (10 Passing Tests)** | ![alt text](image-1.png) |
-| **CI/CD Pipeline Green Run** | ![alt text](image-2.png) |
+| **Contract Unit Test Output (10 Passing Tests)** | ![alt text](image-8.png) |
+| **CI/CD Pipeline Green Run** | ![alt text](image-7.png) |
 | **Wallet Connected & Balance Displayed** | ![alt text](image-3.png) |
 | **Successful Direct Payment with Hash** | ![alt text](image-4.png) |
 | **Multi-Recipient Split Payment Form** | ![alt text](image-5.png) |
 | **Mobile Responsive UI (360px & 768px)** | ![alt text](image-6.png) |
+
 
 
 
