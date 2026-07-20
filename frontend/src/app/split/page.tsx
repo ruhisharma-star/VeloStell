@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Split, Plus, Trash2, ArrowRight, CheckCircle2, AlertCircle, ExternalLink, Calculator } from "lucide-react";
-import { getWalletKit, truncateAddress } from "@/utils/walletKit";
+import { getWalletKit } from "@/utils/walletKit";
 import { generateTxHash, savePayment, fetchXLMBalance } from "@/utils/stellar";
 import { EXPLORER_URL } from "@/config/contracts";
 
@@ -27,17 +27,20 @@ export default function SplitPayPage() {
   } | null>(null);
 
   useEffect(() => {
-    loadWallet();
-  }, []);
-
-  const loadWallet = async () => {
-    const { address: addr } = await getWalletKit().getAddress();
-    if (addr) {
-      setSender(addr);
-      const bal = await fetchXLMBalance(addr);
-      setBalance(bal);
+    let isMounted = true;
+    async function loadWallet() {
+      const { address: addr } = await getWalletKit().getAddress();
+      if (addr && isMounted) {
+        setSender(addr);
+        const bal = await fetchXLMBalance(addr);
+        if (isMounted) setBalance(bal);
+      }
     }
-  };
+    loadWallet();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const totalPercentage = recipients.reduce((acc, curr) => acc + (curr.percentage || 0), 0);
   const totalBps = Math.round(totalPercentage * 100);
@@ -52,12 +55,13 @@ export default function SplitPayPage() {
     setRecipients(recipients.filter((_, i) => i !== index));
   };
 
-  const updateRecipient = (index: number, field: "address" | "percentage", value: any) => {
+  const updateRecipient = (index: number, field: "address" | "percentage", value: string | number) => {
     const copy = [...recipients];
     if (field === "percentage") {
-      copy[index].percentage = Math.max(0, Math.min(100, parseFloat(value) || 0));
+      const parsed = typeof value === "number" ? value : parseFloat(value) || 0;
+      copy[index].percentage = Math.max(0, Math.min(100, parsed));
     } else {
-      copy[index].address = value.trim();
+      copy[index].address = (value as string).trim();
     }
     setRecipients(copy);
   };
@@ -92,7 +96,7 @@ export default function SplitPayPage() {
       return;
     }
 
-    for (let r of recipients) {
+    for (const r of recipients) {
       if (!r.address.startsWith("G") || r.address.length !== 56) {
         setTxResult({
           success: false,
@@ -130,10 +134,11 @@ export default function SplitPayPage() {
       });
 
       fetchXLMBalance(sender).then(setBalance);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Split payment contract execution failed.";
       setTxResult({
         success: false,
-        message: err?.message || "Split payment contract execution failed.",
+        message: msg,
       });
     } finally {
       setLoading(false);

@@ -33,7 +33,7 @@ class CustomWalletKit {
         return address;
       }
       throw new Error("Freighter wallet not connected or access denied.");
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Freighter connect error:", e);
       throw e;
     }

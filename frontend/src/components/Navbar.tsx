@@ -3,38 +3,51 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wallet, Send, Split, Clock, History, LogOut, ExternalLink, RefreshCw } from "lucide-react";
+import { Wallet, Send, Split, Clock, History, LogOut, RefreshCw } from "lucide-react";
 import { getWalletKit, truncateAddress } from "@/utils/walletKit";
 import { fetchXLMBalance } from "@/utils/stellar";
 import WalletModal from "./WalletModal";
-import { EXPLORER_URL, VELOSTELL_CONTRACT_ID } from "@/config/contracts";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [address, setAddress] = useState<string>("");
   const [balance, setBalance] = useState<string>("0.00");
-  const [walletName, setWalletName] = useState<string>("Freighter");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingBalance, setLoadingBalance] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
+    async function updateBalance(addr: string) {
+      if (!addr) return;
+      setLoadingBalance(true);
+      const bal = await fetchXLMBalance(addr);
+      if (isMounted) {
+        setBalance(bal);
+        setLoadingBalance(false);
+      }
+    }
+
+    async function loadAddress() {
+      const kit = getWalletKit();
+      const { address: addr } = await kit.getAddress();
+      if (addr && isMounted) {
+        setAddress(addr);
+        updateBalance(addr);
+      }
+    }
+
     loadAddress();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const loadAddress = async () => {
-    const kit = getWalletKit();
-    const { address: addr } = await kit.getAddress();
-    if (addr) {
-      setAddress(addr);
-      setWalletName(kit.getWalletName());
-      updateBalance(addr);
-    }
-  };
-
-  const updateBalance = async (addr: string) => {
-    if (!addr) return;
+  const handleManualBalanceRefresh = async () => {
+    if (!address) return;
     setLoadingBalance(true);
-    const bal = await fetchXLMBalance(addr);
+    const bal = await fetchXLMBalance(address);
     setBalance(bal);
     setLoadingBalance(false);
   };
@@ -102,7 +115,7 @@ export default function Navbar() {
                   <span className="text-slate-400">Balance:</span>
                   <span className="font-mono font-bold text-cyan-400">{balance} XLM</span>
                   <button
-                    onClick={() => updateBalance(address)}
+                    onClick={handleManualBalanceRefresh}
                     title="Refresh Balance"
                     className="text-slate-500 hover:text-cyan-400 transition ml-0.5"
                   >
@@ -163,8 +176,7 @@ export default function Navbar() {
         onClose={() => setIsModalOpen(false)}
         onConnected={(addr) => {
           setAddress(addr);
-          setWalletName(getWalletKit().getWalletName());
-          updateBalance(addr);
+          handleManualBalanceRefresh();
         }}
       />
     </>

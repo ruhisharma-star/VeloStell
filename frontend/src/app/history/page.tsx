@@ -1,24 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { History, Search, ExternalLink, Send, Split, Clock, RefreshCw } from "lucide-react";
-import { getWalletKit, truncateAddress } from "@/utils/walletKit";
+import { History, Search, ExternalLink, Send, Split, RefreshCw } from "lucide-react";
+import { truncateAddress } from "@/utils/walletKit";
 import { getStoredPayments, PaymentRecordItem } from "@/utils/stellar";
 import { EXPLORER_URL } from "@/config/contracts";
 
 export default function PaymentHistoryPage() {
-  const [address, setAddress] = useState<string>("");
   const [payments, setPayments] = useState<PaymentRecordItem[]>([]);
   const [filterType, setFilterType] = useState<"all" | "direct" | "split">("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
+    async function init() {
+      const data = getStoredPayments();
+      if (isMounted) setPayments(data);
+    }
+    init();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const loadData = async () => {
-    const { address: addr } = await getWalletKit().getAddress();
-    if (addr) setAddress(addr);
+  const refreshHistory = () => {
     setPayments(getStoredPayments());
   };
 
@@ -51,7 +56,7 @@ export default function PaymentHistoryPage() {
         </div>
 
         <button
-          onClick={loadData}
+          onClick={refreshHistory}
           className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 flex items-center gap-1.5 transition"
         >
           <RefreshCw size={14} />

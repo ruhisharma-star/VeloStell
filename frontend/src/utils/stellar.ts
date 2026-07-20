@@ -1,6 +1,6 @@
-import { HORIZON_URL, RPC_URL, VELOSTELL_CONTRACT_ID, XLM_SAC_ID, NETWORK_PASSPHRASE } from "../config/contracts";
+import { HORIZON_URL, NETWORK_PASSPHRASE } from "../config/contracts";
 import { isConnected, signTransaction } from "@stellar/freighter-api";
-import { Account, TransactionBuilder, Operation, Asset } from "@stellar/stellar-sdk";
+import { Account, TransactionBuilder, Operation, Asset, Memo } from "@stellar/stellar-sdk";
 
 export interface PaymentRecordItem {
   id: number;
@@ -26,6 +26,11 @@ export interface StreamItem {
   active: boolean;
 }
 
+interface HorizonBalance {
+  asset_type?: string;
+  balance: string;
+}
+
 // Fetch XLM balance from Horizon Testnet
 export async function fetchXLMBalance(address: string): Promise<string> {
   if (!address) return "0.00";
@@ -36,7 +41,7 @@ export async function fetchXLMBalance(address: string): Promise<string> {
       return "0.00";
     }
     const data = await res.json();
-    const nativeBal = data.balances?.find((b: any) => b.asset_type === "native");
+    const nativeBal = data.balances?.find((b: HorizonBalance) => b.asset_type === "native");
     if (nativeBal) {
       return parseFloat(nativeBal.balance).toLocaleString("en-US", {
         minimumFractionDigits: 2,
@@ -69,7 +74,7 @@ export async function executeRealDirectPayment(
     const account = new Account(sender, accData.sequence);
 
     // 2. Build Stellar Payment Transaction XDR
-    const tx = new TransactionBuilder(account, {
+    const txBuilder = new TransactionBuilder(account, {
       fee: "10000",
       networkPassphrase: NETWORK_PASSPHRASE,
     })
@@ -80,19 +85,24 @@ export async function executeRealDirectPayment(
           amount: amountXlm,
         })
       )
-      .setTimeout(30)
-      .build();
+      .setTimeout(30);
 
+    if (memoText && memoText.trim().length > 0) {
+      txBuilder.addMemo(Memo.text(memoText.trim().slice(0, 28)));
+    }
+
+    const tx = txBuilder.build();
     const unsignedXdr = tx.toXDR();
 
     // 3. Trigger Freighter Browser Wallet Pop-up for signing
-    let signedXdrResult: any;
+    let signedXdrResult: string | { signedTxXdr?: string };
     try {
       signedXdrResult = await signTransaction(unsignedXdr, {
         networkPassphrase: NETWORK_PASSPHRASE,
       });
-    } catch (e: any) {
-      throw new Error(e?.message || "User cancelled or rejected transaction in Freighter.");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "User cancelled or rejected transaction in Freighter.";
+      throw new Error(msg);
     }
 
     const signedXdr = typeof signedXdrResult === "string" ? signedXdrResult : signedXdrResult?.signedTxXdr;

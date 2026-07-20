@@ -23,8 +23,9 @@ export default function WalletModal({ isOpen, onClose, onConnected }: WalletModa
       const addr = await getWalletKit().connectFreighter();
       onConnected(addr);
       onClose();
-    } catch (err: any) {
-      setError(err?.message || "Could not connect to Freighter wallet. Make sure the extension is installed.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Could not connect to Freighter wallet. Make sure the extension is installed.";
+      setError(msg);
     } finally {
       setLoading(false);
     }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, ArrowRight, CheckCircle2, AlertCircle, ExternalLink, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, AlertCircle, ExternalLink, ShieldCheck, Zap } from "lucide-react";
 import { getWalletKit, truncateAddress } from "@/utils/walletKit";
 import { executeRealDirectPayment, savePayment, fetchXLMBalance } from "@/utils/stellar";
-import { EXPLORER_URL, VELOSTELL_CONTRACT_ID } from "@/config/contracts";
+import { EXPLORER_URL } from "@/config/contracts";
 
 export default function DirectPayPage() {
   const [address, setAddress] = useState<string>("");
@@ -21,17 +21,20 @@ export default function DirectPayPage() {
   } | null>(null);
 
   useEffect(() => {
-    loadWallet();
-  }, []);
-
-  const loadWallet = async () => {
-    const { address: addr } = await getWalletKit().getAddress();
-    if (addr) {
-      setAddress(addr);
-      const bal = await fetchXLMBalance(addr);
-      setBalance(bal);
+    let isMounted = true;
+    async function init() {
+      const { address: addr } = await getWalletKit().getAddress();
+      if (addr && isMounted) {
+        setAddress(addr);
+        const bal = await fetchXLMBalance(addr);
+        if (isMounted) setBalance(bal);
+      }
     }
-  };
+    init();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSendPayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +82,11 @@ export default function DirectPayPage() {
       setAmount("");
       setMemo("");
       fetchXLMBalance(address).then(setBalance);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Transaction failed or rejected by wallet.";
       setTxResult({
         success: false,
-        message: err?.message || "Transaction failed or rejected by wallet.",
+        message: msg,
       });
     } finally {
       setLoading(false);

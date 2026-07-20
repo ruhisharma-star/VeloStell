@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, Plus, ShieldCheck, CheckCircle2, AlertCircle, Play, XCircle, DollarSign, ExternalLink, RefreshCw } from "lucide-react";
+import { Clock, Plus, RefreshCw, Play, DollarSign, XCircle, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
 import { getWalletKit, truncateAddress } from "@/utils/walletKit";
 import { getStoredStreams, saveStream, updateStoredStream, calculateClaimable, StreamItem, generateTxHash } from "@/utils/stellar";
 import { EXPLORER_URL } from "@/config/contracts";
@@ -22,18 +22,25 @@ export default function StreamsPage() {
   const [toast, setToast] = useState<{ success: boolean; message: string; hash?: string } | null>(null);
 
   useEffect(() => {
-    loadWalletAndStreams();
-    const timer = setInterval(() => {
-      setStreams(getStoredStreams());
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    let isMounted = true;
+    async function init() {
+      const { address: addr } = await getWalletKit().getAddress();
+      if (isMounted) {
+        if (addr) setAddress(addr);
+        setStreams(getStoredStreams());
+      }
+    }
+    init();
 
-  const loadWalletAndStreams = async () => {
-    const { address: addr } = await getWalletKit().getAddress();
-    if (addr) setAddress(addr);
-    setStreams(getStoredStreams());
-  };
+    const timer = setInterval(() => {
+      if (isMounted) setStreams(getStoredStreams());
+    }, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
+  }, []);
 
   const getIntervalSeconds = (): number => {
     const val = parseInt(intervalValue) || 1;
@@ -89,8 +96,9 @@ export default function StreamsPage() {
         hash: txHash,
         message: `Created payment stream #${newStream.id.toString().slice(-4)} for ${amt} XLM into contract escrow!`,
       });
-    } catch (err: any) {
-      setToast({ success: false, message: err?.message || "Stream creation failed." });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Stream creation failed.";
+      setToast({ success: false, message: msg });
     } finally {
       setLoading(false);
     }
@@ -126,8 +134,9 @@ export default function StreamsPage() {
         hash: txHash,
         message: `Claimed ${claimableAmount.toFixed(2)} XLM from stream #${stream.id.toString().slice(-4)}!`,
       });
-    } catch (err: any) {
-      setToast({ success: false, message: err?.message || "Claim failed." });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Claim failed.";
+      setToast({ success: false, message: msg });
     } finally {
       setActionLoadingId(null);
     }
@@ -155,8 +164,9 @@ export default function StreamsPage() {
         hash: txHash,
         message: `Cancelled stream #${stream.id.toString().slice(-4)}. Refunded ${remaining.toFixed(2)} XLM unclaimed escrow back to sender!`,
       });
-    } catch (err: any) {
-      setToast({ success: false, message: err?.message || "Cancellation failed." });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Cancellation failed.";
+      setToast({ success: false, message: msg });
     } finally {
       setActionLoadingId(null);
     }
@@ -233,7 +243,7 @@ export default function StreamsPage() {
                 </label>
                 <select
                   value={intervalUnit}
-                  onChange={(e: any) => setIntervalUnit(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setIntervalUnit(e.target.value as "seconds" | "hours" | "days")}
                   className="w-full px-3 py-2.5 rounded-xl glass-input text-xs text-white bg-slate-900"
                 >
                   <option value="seconds">Seconds</option>
@@ -241,6 +251,20 @@ export default function StreamsPage() {
                   <option value="days">Days</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Interval Value
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={intervalValue}
+                onChange={(e) => setIntervalValue(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-white"
+                required
+              />
             </div>
 
             <button
@@ -291,8 +315,6 @@ export default function StreamsPage() {
                   100,
                   Math.round((st.claimedAmount / st.totalAmount) * 100)
                 );
-                const isRecipient = address && address.toLowerCase() === st.recipient.toLowerCase();
-                const isSender = address && address.toLowerCase() === st.sender.toLowerCase();
 
                 return (
                   <div
