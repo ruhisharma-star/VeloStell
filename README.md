@@ -251,8 +251,9 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
 
 ## 12. Live Demo & Demo Video
 
-- **Live Web Application**: [https://fundara-chi.vercel.app/](https://fundara-chi.vercel.app/) <!-- TODO: PASTE_LIVE_DEMO_URL_HERE -->
-- **Demo Video (1-2 min)**: [Watch Demo Video on Google Photos](https://photos.app.goo.gl/We9LJBW1VWLQjNNP9) <!-- TODO: PASTE_DEMO_VIDEO_URL_HERE -->
+- **Live Web Application**: [https://velo-stell.vercel.app/](https://velo-stell.vercel.app/)
+- **Demo Video (1-2 min)**: [Watch Demo Video on Google Photos](https://photos.app.goo.gl/pVN563k5Xm61M9859)
+
 
 ---
 
