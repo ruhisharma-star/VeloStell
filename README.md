@@ -229,7 +229,7 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
    - Runs `npm run build` (Next.js production build verification).
 
 ### Pipeline Screenshot
-![CI Pipeline](./image-2.png) <!-- TODO: PASTE_CI_PIPELINE_SCREENSHOT_HERE -->
+![CI Pipeline Green Run](image-2.png)
 
 ---
 
@@ -237,10 +237,12 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
 
 | Description | Screenshot |
 |---|---|
-| **Wallet Connected & Balance Displayed** | ![Wallet Connected](./image.png) <!-- TODO: PASTE_WALLET_CONNECTED_SCREENSHOT_HERE --> |
-| **Successful Direct Payment with Hash** | ![Direct Payment](./image.png) <!-- TODO: PASTE_PAYMENT_SUCCESS_SCREENSHOT_HERE --> |
-| **Multi-Recipient Split Payment Form** | ![Split Payment](./image.png) <!-- TODO: PASTE_SPLIT_PAYMENT_SCREENSHOT_HERE --> |
-| **Mobile Responsive UI (360px & 768px)** | ![Mobile Responsive UI](./image.png) <!-- TODO: PASTE_MOBILE_UI_SCREENSHOT_HERE --> |
+| **CI/CD Pipeline Green Run** | ![CI Pipeline](image-2.png) |
+| **Wallet Connected & Balance Displayed** | ![Wallet Connected](image-3.png) |
+| **Successful Direct Payment with Hash** | ![Direct Payment](image-4.png) |
+| **Multi-Recipient Split Payment Form** | ![Split Payment](image-5.png) |
+| **Mobile Responsive UI (360px & 768px)** | ![Mobile Responsive UI](image-6.png) |
+
 
 ---
 
