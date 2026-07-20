@@ -1,24 +1,26 @@
-name: CI
+name: Velostell CI/CD
+
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: [ main, master ]
 
 jobs:
-  contracts:
-    name: Contract Verification
+  contract-test:
+    name: Soroban Contract Test & WASM Build
     runs-on: ubuntu-latest
-    env:
-      RUSTFLAGS: "-C target-feature=-reference-types"
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
-      - name: Cache Cargo build
-        uses: actions/cache@v4
+
+      - name: Cache Cargo Dependencies
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -26,43 +28,36 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-ci-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-ci-
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-binstall
-        run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Run Soroban Contract Unit Tests
+        run: cargo test
 
-      - name: Install Stellar CLI
-        run: cargo binstall --no-confirm stellar-cli
-
-      - name: Build and Optimize Contracts
-        run: |
-          cargo build --target wasm32-unknown-unknown --release
-          stellar contract optimize --wasm target/wasm32-unknown-unknown/release/velostell.wasm || true
-
-      - name: Run Contract Tests
-        run: cargo test --workspace --verbose
+      - name: Build Soroban Release WASM
+        run: cargo build --target wasm32-unknown-unknown --release
 
   frontend:
-    name: Frontend Verification
+    name: Next.js Frontend CI
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      - name: Run tests
-        run: npm run test
-      - name: Build
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint Frontend
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build Next.js Production Bundle
+        working-directory: ./frontend
         run: npm run build

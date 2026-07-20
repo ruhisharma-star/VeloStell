@@ -1,196 +1,171 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { getWalletKit } from "@/utils/walletKit";
-import { Wallet, LogOut, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Wallet, Send, Split, Clock, History, LogOut, ExternalLink, RefreshCw } from "lucide-react";
+import { getWalletKit, truncateAddress } from "@/utils/walletKit";
+import { fetchXLMBalance } from "@/utils/stellar";
 import WalletModal from "./WalletModal";
+import { EXPLORER_URL, VELOSTELL_CONTRACT_ID } from "@/config/contracts";
 
 export default function Navbar() {
-  const [pubKey, setPubKey] = useState<string>("");
-  const [walletName, setWalletName] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const pathname = usePathname();
+  const [address, setAddress] = useState<string>("");
+  const [balance, setBalance] = useState<string>("0.00");
+  const [walletName, setWalletName] = useState<string>("Freighter");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingBalance, setLoadingBalance] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-    const kit = getWalletKit();
-    kit.getAddress().then(({ address }) => {
-      if (address && isMounted) {
-        setPubKey(address);
-        const name = localStorage.getItem("stellar_wallet_name") || "Wallet";
-        setWalletName(name);
-      }
-    }).catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
+    loadAddress();
   }, []);
 
-  const handleSelectWallet = (address: string, name: string) => {
+  const loadAddress = async () => {
     const kit = getWalletKit();
-    kit.setConnectedAddress(address, name);
-    setPubKey(address);
-    setWalletName(name);
+    const { address: addr } = await kit.getAddress();
+    if (addr) {
+      setAddress(addr);
+      setWalletName(kit.getWalletName());
+      updateBalance(addr);
+    }
+  };
+
+  const updateBalance = async (addr: string) => {
+    if (!addr) return;
+    setLoadingBalance(true);
+    const bal = await fetchXLMBalance(addr);
+    setBalance(bal);
+    setLoadingBalance(false);
   };
 
   const handleDisconnect = () => {
-    const kit = getWalletKit();
-    kit.disconnect();
-    setPubKey("");
-    setWalletName("");
+    getWalletKit().disconnect();
+    setAddress("");
+    setBalance("0.00");
   };
+
+  const navLinks = [
+    { name: "Direct Pay", href: "/", icon: Send },
+    { name: "Split Pay", href: "/split", icon: Split },
+    { name: "Streams", href: "/streams", icon: Clock },
+    { name: "History", href: "/history", icon: History },
+  ];
 
   return (
     <>
-      <nav className="border-b bg-white sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            {/* Left Brand & Desktop Nav */}
-            <div className="flex items-center space-x-6 sm:space-x-8">
-              <Link href="/" className="text-xl font-bold text-orange-500 flex items-center space-x-1">
-                <span>StellarFund</span>
-              </Link>
-              <div className="hidden md:flex items-center space-x-6">
-                <Link href="/" className="text-gray-700 hover:text-orange-500 transition font-medium">
-                  Campaigns
-                </Link>
-                <Link href="/dashboard" className="text-gray-700 hover:text-orange-500 transition font-medium">
-                  Dashboard
-                </Link>
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-xl gradient-btn flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition">
+                <Send size={18} className="-rotate-45" />
               </div>
-            </div>
+              <div className="flex flex-col">
+                <span className="font-black text-xl tracking-tight text-white flex items-center gap-1.5">
+                  Velo<span className="gradient-text">stell</span>
+                </span>
+                <span className="text-[10px] text-slate-400 -mt-1 font-mono tracking-wider">SOROBAN PAYMENTS</span>
+              </div>
+            </Link>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link
-                href="/create"
-                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 font-medium transition shadow-sm text-sm"
-              >
-                Create Campaign
-              </Link>
+            {/* Nav Links Desktop */}
+            <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800/60">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const active = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      active
+                        ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-500/30"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                    }`}
+                  >
+                    <Icon size={15} />
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-              {pubKey ? (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2 bg-gray-50 border border-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="font-semibold text-xs text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded">
-                      {walletName}
-                    </span>
-                    <span className="font-mono text-xs">
-                      {pubKey.substring(0, 4)}...{pubKey.substring(pubKey.length - 4)}
-                    </span>
+          {/* Right Section: Balance & Wallet */}
+          <div className="flex items-center gap-3">
+            {address ? (
+              <div className="flex items-center gap-2">
+                {/* Balance Pill */}
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800/80 text-xs">
+                  <span className="text-slate-400">Balance:</span>
+                  <span className="font-mono font-bold text-cyan-400">{balance} XLM</span>
+                  <button
+                    onClick={() => updateBalance(address)}
+                    title="Refresh Balance"
+                    className="text-slate-500 hover:text-cyan-400 transition ml-0.5"
+                  >
+                    <RefreshCw size={12} className={loadingBalance ? "animate-spin text-cyan-400" : ""} />
+                  </button>
+                </div>
+
+                {/* Wallet Badge & Disconnect */}
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/90 border border-slate-800/80">
+                  <div className="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 font-mono text-xs font-semibold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>{truncateAddress(address)}</span>
                   </div>
                   <button
                     onClick={handleDisconnect}
-                    title="Disconnect"
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                    title="Disconnect Wallet"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={15} />
                   </button>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition shadow-sm font-medium text-sm"
-                >
-                  <Wallet size={18} />
-                  <span>Connect Wallet</span>
-                </button>
-              )}
-            </div>
-
-            {/* Mobile Menu Toggle Button */}
-            <div className="flex md:hidden items-center space-x-2">
-              {pubKey && (
-                <div className="flex items-center bg-gray-100 px-2 py-1 rounded-md text-xs font-mono">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>
-                  {pubKey.substring(0, 4)}...{pubKey.substring(pubKey.length - 3)}
-                </div>
-              )}
+              </div>
+            ) : (
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-orange-500 focus:outline-none"
-                aria-label="Toggle navigation menu"
+                onClick={() => setIsModalOpen(true)}
+                className="gradient-btn px-4 py-2 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-500/20 flex items-center gap-2"
               >
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                <Wallet size={16} />
+                <span>Connect Wallet</span>
               </button>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-4 space-y-3 animate-in slide-in-from-top duration-200">
-            <Link
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 transition"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 transition"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/create"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block w-full text-center bg-orange-500 text-white px-4 py-2.5 rounded-lg hover:bg-orange-600 font-medium transition shadow-xs"
-            >
-              + Create Campaign
-            </Link>
-
-            <div className="pt-2 border-t border-gray-100">
-              {pubKey ? (
-                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <div>
-                      <div className="font-semibold text-xs text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded inline-block mb-0.5">
-                        {walletName}
-                      </div>
-                      <div className="font-mono text-xs text-gray-600">
-                        {pubKey.substring(0, 8)}...{pubKey.substring(pubKey.length - 8)}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      handleDisconnect();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center space-x-1 text-xs text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded-md font-medium transition"
-                  >
-                    <LogOut size={14} />
-                    <span>Disconnect</span>
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center justify-center space-x-2 w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition font-medium"
-                >
-                  <Wallet size={18} />
-                  <span>Connect Wallet</span>
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </nav>
+        {/* Mobile Navigation Bar */}
+        <div className="md:hidden flex items-center justify-around border-t border-slate-800/80 bg-slate-950/90 px-2 py-2">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-medium transition ${
+                  active ? "text-cyan-400" : "text-slate-400"
+                }`}
+              >
+                <Icon size={18} />
+                <span>{link.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </header>
 
       <WalletModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSelectWallet={handleSelectWallet}
+        onConnected={(addr) => {
+          setAddress(addr);
+          setWalletName(getWalletKit().getWalletName());
+          updateBalance(addr);
+        }}
       />
     </>
   );
