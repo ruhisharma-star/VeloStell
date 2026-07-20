@@ -237,11 +237,12 @@ The repository uses GitHub Actions (`.github/workflows/ci.yml`) to automatically
 
 | Description | Screenshot |
 |---|---|
-| **CI/CD Pipeline Green Run** | ![CI Pipeline](image-2.png) |
-| **Wallet Connected & Balance Displayed** | ![Wallet Connected](image-3.png) |
-| **Successful Direct Payment with Hash** | ![Direct Payment](image-4.png) |
-| **Multi-Recipient Split Payment Form** | ![Split Payment](image-5.png) |
-| **Mobile Responsive UI (360px & 768px)** | ![Mobile Responsive UI](image-6.png) |
+| **CI/CD Pipeline Green Run** | ![alt text](image-2.png) |
+| **Wallet Connected & Balance Displayed** | ![alt text](image-3.png) |
+| **Successful Direct Payment with Hash** | ![alt text](image-4.png) |
+| **Multi-Recipient Split Payment Form** | ![alt text](image-5.png) |
+| **Mobile Responsive UI (360px & 768px)** | ![alt text](image-6.png) |
+
 
 
 ---
