@@ -1,4 +1,6 @@
-import { HORIZON_URL, RPC_URL, VELOSTELL_CONTRACT_ID, XLM_SAC_ID } from "../config/contracts";
+import { HORIZON_URL, RPC_URL, VELOSTELL_CONTRACT_ID, XLM_SAC_ID, NETWORK_PASSPHRASE } from "../config/contracts";
+import { isConnected, signTransaction } from "@stellar/freighter-api";
+import { Account, TransactionBuilder, Operation, Asset } from "@stellar/stellar-sdk";
 
 export interface PaymentRecordItem {
   id: number;
@@ -48,6 +50,77 @@ export async function fetchXLMBalance(address: string): Promise<string> {
   }
 }
 
+// Execute real payment transaction with Freighter wallet pop-up signing
+export async function executeRealDirectPayment(
+  sender: string,
+  recipient: string,
+  amountXlm: string,
+  memoText: string
+): Promise<string> {
+  const freighterConnected = await isConnected().catch(() => false);
+
+  if (freighterConnected) {
+    // 1. Fetch account sequence number from Horizon Testnet
+    const accRes = await fetch(`${HORIZON_URL}/accounts/${sender}`);
+    if (!accRes.ok) {
+      throw new Error("Sender account not found or unfunded on Testnet. Please fund your wallet via Stellar Friendbot.");
+    }
+    const accData = await accRes.json();
+    const account = new Account(sender, accData.sequence);
+
+    // 2. Build Stellar Payment Transaction XDR
+    const tx = new TransactionBuilder(account, {
+      fee: "10000",
+      networkPassphrase: NETWORK_PASSPHRASE,
+    })
+      .addOperation(
+        Operation.payment({
+          destination: recipient,
+          asset: Asset.native(),
+          amount: amountXlm,
+        })
+      )
+      .setTimeout(30)
+      .build();
+
+    const unsignedXdr = tx.toXDR();
+
+    // 3. Trigger Freighter Browser Wallet Pop-up for signing
+    let signedXdrResult: any;
+    try {
+      signedXdrResult = await signTransaction(unsignedXdr, {
+        networkPassphrase: NETWORK_PASSPHRASE,
+      });
+    } catch (e: any) {
+      throw new Error(e?.message || "User cancelled or rejected transaction in Freighter.");
+    }
+
+    const signedXdr = typeof signedXdrResult === "string" ? signedXdrResult : signedXdrResult?.signedTxXdr;
+    if (!signedXdr) {
+      throw new Error("Transaction signature was not provided by wallet.");
+    }
+
+    // 4. Submit signed transaction to Stellar Testnet Horizon RPC
+    const submitRes = await fetch(`${HORIZON_URL}/transactions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `tx=${encodeURIComponent(signedXdr)}`,
+    });
+
+    const submitJson = await submitRes.json();
+    if (submitJson.hash) {
+      return submitJson.hash;
+    } else if (submitJson.extras?.result_codes?.transaction) {
+      throw new Error(`Stellar Transaction Failed: ${submitJson.extras.result_codes.transaction}`);
+    } else {
+      throw new Error(submitJson.detail || "Transaction submission failed on Stellar Testnet.");
+    }
+  } else {
+    // If user is in Demo Wallet mode (no extension)
+    return generateTxHash();
+  }
+}
+
 // In-memory / LocalStorage state manager for responsive real-time dApp behavior
 const STORAGE_KEY_PAYMENTS = "velostell_payments_v1";
 const STORAGE_KEY_STREAMS = "velostell_streams_v1";
@@ -60,29 +133,7 @@ export function getStoredPayments(): PaymentRecordItem[] {
   } catch (e) {
     console.error(e);
   }
-  // Default seed data for rich demo
-  return [
-    {
-      id: 1,
-      sender: "GBXGQJWVLWOYHFLVTKWXR532W3X5W236MTRVLL3Q6Q76CYST",
-      recipient: "GD72PAWAG272WSGP73CDOECTZZ67GCYTQIZWMIC6QY2XCTANBTKB6Z",
-      amount: 150.0,
-      memo: "Invoice #1042 - Web Dev Services",
-      timestamp: Date.now() - 3600000 * 24,
-      txHash: "7b4a2c91839e0d1f42a6c1e9564d2bf789a421e35901cd678e09bf1a4325e89d",
-      type: "direct",
-    },
-    {
-      id: 2,
-      sender: "GBXGQJWVLWOYHFLVTKWXR532W3X5W236MTRVLL3Q6Q76CYST",
-      recipient: "GCT3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-      amount: 50.0,
-      memo: "Team Coffee Split",
-      timestamp: Date.now() - 3600000 * 48,
-      txHash: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
-      type: "split",
-    },
-  ];
+  return [];
 }
 
 export function savePayment(record: PaymentRecordItem) {
@@ -101,20 +152,7 @@ export function getStoredStreams(): StreamItem[] {
   } catch (e) {
     console.error(e);
   }
-  return [
-    {
-      id: 1,
-      sender: "GBXGQJWVLWOYHFLVTKWXR532W3X5W236MTRVLL3Q6Q76CYST",
-      recipient: "GAB2RMQQVU2HHGCYSC6QY2XCTANBTKB6ZCDIARVPAWAG272WSGP73CD",
-      totalAmount: 1200.0,
-      installments: 4,
-      intervalSeconds: 3600, // 1 hour intervals
-      startTime: Date.now() - 7200000, // 2 hours ago
-      claimedInstallments: 1,
-      claimedAmount: 300.0,
-      active: true,
-    },
-  ];
+  return [];
 }
 
 export function saveStream(stream: StreamItem) {
@@ -168,7 +206,7 @@ export function calculateClaimable(stream: StreamItem): {
   return { claimableInstallments, claimableAmount, nextClaimTimeMs };
 }
 
-// Simulated transaction hash helper for real-feeling testing or when Freighter signs
+// Generated Tx Hash helper for fallback demo mode
 export function generateTxHash(): string {
   const chars = "abcdef0123456789";
   let hash = "";

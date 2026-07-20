@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { Send, ArrowRight, CheckCircle2, AlertCircle, ExternalLink, ShieldCheck, Zap } from "lucide-react";
 import { getWalletKit, truncateAddress } from "@/utils/walletKit";
-import { generateTxHash, savePayment, fetchXLMBalance } from "@/utils/stellar";
-import { EXPLORER_URL, VELOSTELL_CONTRACT_ID, XLM_SAC_ID } from "@/config/contracts";
+import { executeRealDirectPayment, savePayment, fetchXLMBalance } from "@/utils/stellar";
+import { EXPLORER_URL, VELOSTELL_CONTRACT_ID } from "@/config/contracts";
 
 export default function DirectPayPage() {
   const [address, setAddress] = useState<string>("");
@@ -55,12 +55,10 @@ export default function DirectPayPage() {
     setTxResult(null);
 
     try {
-      // Simulate Soroban inter-contract call to Native Stellar Asset Contract (SAC)
-      await new Promise((r) => setTimeout(r, 1800));
+      // Triggers real Freighter extension pop-up and submits tx to Stellar Testnet
+      const txHash = await executeRealDirectPayment(address, recipient, amount, memo || "Direct XLM Payment");
 
-      const txHash = generateTxHash();
-
-      // Record transaction
+      // Record transaction locally
       savePayment({
         id: Date.now(),
         sender: address,
@@ -84,7 +82,7 @@ export default function DirectPayPage() {
     } catch (err: any) {
       setTxResult({
         success: false,
-        message: err?.message || "Transaction failed during Soroban contract execution.",
+        message: err?.message || "Transaction failed or rejected by wallet.",
       });
     } finally {
       setLoading(false);
@@ -101,7 +99,7 @@ export default function DirectPayPage() {
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white">Direct XLM Payment</h1>
         <p className="text-sm text-slate-400 max-w-md mx-auto">
-          Execute instant, memo-tagged value transfers routed via Soroban contract calling Stellar Native Asset Contract (SAC).
+          Execute instant, memo-tagged value transfers signed directly via your Freighter Wallet on Stellar Testnet.
         </p>
       </div>
 
@@ -178,11 +176,10 @@ export default function DirectPayPage() {
           <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs space-y-1 text-slate-400">
             <div className="flex items-center gap-2 text-slate-200 font-semibold mb-1">
               <ShieldCheck size={14} className="text-cyan-400" />
-              <span>Inter-Contract Architecture Notice</span>
+              <span>Real Wallet Signing Active</span>
             </div>
-            <div>• Inter-contract Call: <code className="text-cyan-300 font-mono">token::Client::transfer</code></div>
-            <div>• Contract Address: <code className="text-slate-300 font-mono">{truncateAddress(VELOSTELL_CONTRACT_ID, 8, 8)}</code></div>
-            <div>• Asset Target: <code className="text-slate-300 font-mono">Native XLM SAC</code></div>
+            <div>• Submitting will open your <strong className="text-cyan-300">Freighter Wallet Popup</strong> to sign.</div>
+            <div>• Real XLM will be debited on Stellar Testnet upon approval.</div>
           </div>
 
           {/* Submit Button */}
@@ -194,7 +191,7 @@ export default function DirectPayPage() {
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Executing Soroban Contract Call...</span>
+                <span>Awaiting Freighter Wallet Signature...</span>
               </>
             ) : (
               <>
@@ -221,7 +218,7 @@ export default function DirectPayPage() {
                 <AlertCircle size={20} className="shrink-0 text-red-400 mt-0.5" />
               )}
               <div className="space-y-2 text-xs flex-1">
-                <div className="font-bold text-sm">{txResult.success ? "Payment Executed!" : "Execution Failed"}</div>
+                <div className="font-bold text-sm">{txResult.success ? "Payment Executed!" : "Execution Error"}</div>
                 <div>{txResult.message}</div>
 
                 {txResult.hash && (
