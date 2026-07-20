@@ -1,4 +1,5 @@
 import { isConnected, getAddress as freighterGetAddress, requestAccess } from "@stellar/freighter-api";
+import albedo from "@albedo-link/intent";
 
 class CustomWalletKit {
   private activeWallet: string = "Freighter";
@@ -35,6 +36,37 @@ class CustomWalletKit {
       throw new Error("Freighter wallet not connected or access denied.");
     } catch (e: unknown) {
       console.error("Freighter connect error:", e);
+      throw e;
+    }
+  }
+
+  async connectAlbedo(): Promise<string> {
+    try {
+      const res = await albedo.publicKey({});
+      if (res.pubkey) {
+        this.setConnectedAddress(res.pubkey, "Albedo");
+        return res.pubkey;
+      }
+      throw new Error("Could not connect to Albedo wallet.");
+    } catch (e: unknown) {
+      console.error("Albedo connect error:", e);
+      throw e;
+    }
+  }
+
+  async connectXBull(): Promise<string> {
+    try {
+      const win = typeof window !== "undefined" ? (window as unknown as { xbull?: { getPublicKey: () => Promise<string> } }) : undefined;
+      if (win?.xbull) {
+        const pubkey = await win.xbull.getPublicKey();
+        if (pubkey) {
+          this.setConnectedAddress(pubkey, "xBull");
+          return pubkey;
+        }
+      }
+      throw new Error("xBull Wallet extension is not installed in your browser.");
+    } catch (e: unknown) {
+      console.error("xBull connect error:", e);
       throw e;
     }
   }
