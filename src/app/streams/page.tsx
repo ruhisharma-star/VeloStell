@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Clock, Plus, RefreshCw, Play, DollarSign, XCircle, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
 import { getWalletKit, truncateAddress } from "@/utils/walletKit";
-import { getStoredStreams, saveStream, updateStoredStream, calculateClaimable, StreamItem, generateTxHash } from "@/utils/stellar";
+import { getStoredStreams, saveStream, updateStoredStream, calculateClaimable, StreamItem, executeRealCreateStream, executeRealClaimStream, executeRealCancelStream } from "@/utils/stellar";
 import { EXPLORER_URL } from "@/config/contracts";
 
 export default function StreamsPage() {
@@ -72,10 +72,16 @@ export default function StreamsPage() {
     setToast(null);
 
     try {
-      await new Promise((r) => setTimeout(r, 1800));
+      const { txHash, streamId } = await executeRealCreateStream(
+        address,
+        recipient,
+        totalAmount,
+        inst,
+        getIntervalSeconds()
+      );
 
       const newStream: StreamItem = {
-        id: Date.now(),
+        id: streamId,
         sender: address,
         recipient,
         totalAmount: amt,
@@ -90,7 +96,6 @@ export default function StreamsPage() {
       saveStream(newStream);
       setStreams(getStoredStreams());
 
-      const txHash = generateTxHash();
       setToast({
         success: true,
         hash: txHash,
@@ -109,14 +114,14 @@ export default function StreamsPage() {
     setToast(null);
 
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-
       const { claimableInstallments, claimableAmount } = calculateClaimable(stream);
       if (claimableInstallments <= 0) {
         setToast({ success: false, message: "Contract Error: NothingToClaim. No new installment due yet." });
         setActionLoadingId(null);
         return;
       }
+
+      const txHash = await executeRealClaimStream(stream.id, address);
 
       const updated: StreamItem = {
         ...stream,
@@ -128,7 +133,6 @@ export default function StreamsPage() {
       updateStoredStream(updated);
       setStreams(getStoredStreams());
 
-      const txHash = generateTxHash();
       setToast({
         success: true,
         hash: txHash,
@@ -147,7 +151,7 @@ export default function StreamsPage() {
     setToast(null);
 
     try {
-      await new Promise((r) => setTimeout(r, 1500));
+      const txHash = await executeRealCancelStream(stream.id, address);
 
       const remaining = stream.totalAmount - stream.claimedAmount;
       const updated: StreamItem = {
@@ -158,7 +162,6 @@ export default function StreamsPage() {
       updateStoredStream(updated);
       setStreams(getStoredStreams());
 
-      const txHash = generateTxHash();
       setToast({
         success: true,
         hash: txHash,

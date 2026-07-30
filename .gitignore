@@ -4,9 +4,14 @@
 /build_target*/
 
 # Node & Next.js
-/frontend/node_modules/
-/frontend/.next/
-/frontend/out/
+/node_modules/
+/.next/
+/out/
+/coverage/
+/build/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
 
 # IDE & OS files
 .DS_Store

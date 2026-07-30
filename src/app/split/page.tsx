@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Split, Plus, Trash2, ArrowRight, CheckCircle2, AlertCircle, ExternalLink, Calculator } from "lucide-react";
 import { getWalletKit } from "@/utils/walletKit";
-import { generateTxHash, savePayment, fetchXLMBalance } from "@/utils/stellar";
+import { executeRealSplitPayment, savePayment, fetchXLMBalance } from "@/utils/stellar";
 import { EXPLORER_URL } from "@/config/contracts";
 
 interface RecipientInput {
@@ -110,10 +110,7 @@ export default function SplitPayPage() {
     setTxResult(null);
 
     try {
-      // Simulate multi-recipient inter-contract call
-      await new Promise((r) => setTimeout(r, 2000));
-
-      const txHash = generateTxHash();
+      const txHash = await executeRealSplitPayment(sender, totalAmount, recipients);
 
       // Record split payment in history
       savePayment({
