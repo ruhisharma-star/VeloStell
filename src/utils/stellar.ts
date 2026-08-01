@@ -352,3 +352,4 @@ export function generateTxHash(): string {
   }
   return hash;
 }
+// PaymentRecordItem represents a single payment history entry.
