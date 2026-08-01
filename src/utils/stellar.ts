@@ -353,3 +353,4 @@ export function generateTxHash(): string {
   return hash;
 }
 // PaymentRecordItem represents a single payment history entry.
+// type field distinguishes between direct and split payments.
