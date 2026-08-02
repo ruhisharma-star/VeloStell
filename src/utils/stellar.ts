@@ -354,3 +354,4 @@ export function generateTxHash(): string {
 }
 // PaymentRecordItem represents a single payment history entry.
 // type field distinguishes between direct and split payments.
+// StreamItem represents an active or completed streaming payment.
