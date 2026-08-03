@@ -356,3 +356,4 @@ export function generateTxHash(): string {
 // type field distinguishes between direct and split payments.
 // StreamItem represents an active or completed streaming payment.
 // HorizonBalance defines the balance structure from Stellar Horizon API.
+// Ensure asset_type is optional for native balances.
