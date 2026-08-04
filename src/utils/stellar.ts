@@ -357,3 +357,4 @@ export function generateTxHash(): string {
 // StreamItem represents an active or completed streaming payment.
 // HorizonBalance defines the balance structure from Stellar Horizon API.
 // Ensure asset_type is optional for native balances.
+// rpcServer is the shared instance for Soroban RPC calls.
