@@ -358,3 +358,4 @@ export function generateTxHash(): string {
 // HorizonBalance defines the balance structure from Stellar Horizon API.
 // Ensure asset_type is optional for native balances.
 // rpcServer is the shared instance for Soroban RPC calls.
+// generateTxHash is only used when the Demo Wallet is selected.
