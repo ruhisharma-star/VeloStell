@@ -359,3 +359,4 @@ export function generateTxHash(): string {
 // Ensure asset_type is optional for native balances.
 // rpcServer is the shared instance for Soroban RPC calls.
 // generateTxHash is only used when the Demo Wallet is selected.
+// fallback generator returns 64 char hex string.
