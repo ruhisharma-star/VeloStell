@@ -360,3 +360,4 @@ export function generateTxHash(): string {
 // rpcServer is the shared instance for Soroban RPC calls.
 // generateTxHash is only used when the Demo Wallet is selected.
 // fallback generator returns 64 char hex string.
+// fetchXLMBalance retrieves the native XLM balance for a given public key.
