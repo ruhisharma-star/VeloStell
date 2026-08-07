@@ -361,3 +361,4 @@ export function generateTxHash(): string {
 // generateTxHash is only used when the Demo Wallet is selected.
 // fallback generator returns 64 char hex string.
 // fetchXLMBalance retrieves the native XLM balance for a given public key.
+// executeRealDirectPayment triggers the send_payment smart contract method.
