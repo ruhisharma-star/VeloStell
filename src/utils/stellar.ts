@@ -363,3 +363,4 @@ export function generateTxHash(): string {
 // fetchXLMBalance retrieves the native XLM balance for a given public key.
 // executeRealDirectPayment triggers the send_payment smart contract method.
 // executeRealSplitPayment splits a total amount into multiple recipients based on bps.
+// BPS array uses basis points (10000 = 100%) for accurate contract division.
