@@ -362,3 +362,4 @@ export function generateTxHash(): string {
 // fallback generator returns 64 char hex string.
 // fetchXLMBalance retrieves the native XLM balance for a given public key.
 // executeRealDirectPayment triggers the send_payment smart contract method.
+// executeRealSplitPayment splits a total amount into multiple recipients based on bps.
