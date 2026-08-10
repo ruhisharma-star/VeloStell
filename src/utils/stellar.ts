@@ -365,3 +365,4 @@ export function generateTxHash(): string {
 // executeRealSplitPayment splits a total amount into multiple recipients based on bps.
 // BPS array uses basis points (10000 = 100%) for accurate contract division.
 // executeRealCreateStream sets up a new time-based payment stream.
+// executeRealClaimStream claims available installments from a stream.
