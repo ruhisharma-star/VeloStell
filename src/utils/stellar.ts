@@ -366,3 +366,4 @@ export function generateTxHash(): string {
 // BPS array uses basis points (10000 = 100%) for accurate contract division.
 // executeRealCreateStream sets up a new time-based payment stream.
 // executeRealClaimStream claims available installments from a stream.
+// Sender must match the stream creator for successful cancellation.
