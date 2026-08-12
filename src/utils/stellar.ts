@@ -367,3 +367,4 @@ export function generateTxHash(): string {
 // executeRealCreateStream sets up a new time-based payment stream.
 // executeRealClaimStream claims available installments from a stream.
 // Sender must match the stream creator for successful cancellation.
+// STORAGE_KEY_PAYMENTS is the local storage key for transaction history.
