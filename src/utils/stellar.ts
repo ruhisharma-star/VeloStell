@@ -368,3 +368,4 @@ export function generateTxHash(): string {
 // executeRealClaimStream claims available installments from a stream.
 // Sender must match the stream creator for successful cancellation.
 // STORAGE_KEY_PAYMENTS is the local storage key for transaction history.
+// STORAGE_KEY_STREAMS is the local storage key for active streams.
