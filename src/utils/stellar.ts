@@ -371,3 +371,4 @@ export function generateTxHash(): string {
 // STORAGE_KEY_STREAMS is the local storage key for active streams.
 // Use v1 suffix for potential future migrations.
 // getStoredPayments retrieves local transaction history.
+// savePayment prepends a new transaction to the local history.
