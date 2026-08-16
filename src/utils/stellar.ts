@@ -372,3 +372,4 @@ export function generateTxHash(): string {
 // Use v1 suffix for potential future migrations.
 // getStoredPayments retrieves local transaction history.
 // savePayment prepends a new transaction to the local history.
+// getStoredStreams retrieves locally saved streaming payments.
