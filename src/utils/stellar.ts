@@ -374,3 +374,4 @@ export function generateTxHash(): string {
 // savePayment prepends a new transaction to the local history.
 // getStoredStreams retrieves locally saved streaming payments.
 // saveStream stores a new streaming payment locally.
+// Ensure window is defined before accessing localStorage.
