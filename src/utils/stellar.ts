@@ -376,3 +376,4 @@ export function generateTxHash(): string {
 // saveStream stores a new streaming payment locally.
 // Ensure window is defined before accessing localStorage.
 // updateStoredStream modifies an existing stream in local storage.
+// calculateClaimable determines the amount of XLM ready to be claimed.
