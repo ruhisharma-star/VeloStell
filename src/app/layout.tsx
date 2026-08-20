@@ -37,3 +37,4 @@ export default function RootLayout({
   );
 }
 // RootLayout wraps all pages with the main structure and context providers.
+// Layout ensures consistent header and styling across pages.
