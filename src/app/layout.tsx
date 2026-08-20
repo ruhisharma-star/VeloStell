@@ -36,3 +36,4 @@ export default function RootLayout({
     </html>
   );
 }
+// RootLayout wraps all pages with the main structure and context providers.
