@@ -249,3 +249,4 @@ export default function DirectPayPage() {
     </div>
   );
 }
+// Home page provides the main dashboard for VeloStell.
