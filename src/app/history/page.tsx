@@ -186,3 +186,4 @@ export default function PaymentHistoryPage() {
   );
 }
 // History page displays a list of past transactions.
+// History relies on local storage for persistence in beta.
