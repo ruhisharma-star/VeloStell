@@ -185,3 +185,4 @@ export default function PaymentHistoryPage() {
     </div>
   );
 }
+// History page displays a list of past transactions.
