@@ -338,3 +338,4 @@ export default function SplitPayPage() {
     </div>
   );
 }
+// Split page handles the UI for dividing payments among multiple recipients.
