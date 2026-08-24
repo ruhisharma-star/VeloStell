@@ -446,3 +446,4 @@ export default function StreamsPage() {
   );
 }
 // Streams page allows users to manage their active streaming payments.
+// Calculates remaining installments instantly.
