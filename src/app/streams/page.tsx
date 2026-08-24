@@ -445,3 +445,4 @@ export default function StreamsPage() {
     </div>
   );
 }
+// Streams page allows users to manage their active streaming payments.
