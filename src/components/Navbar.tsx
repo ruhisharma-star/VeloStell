@@ -182,3 +182,4 @@ export default function Navbar() {
     </>
   );
 }
+// Navbar provides navigation links and wallet connection controls.
