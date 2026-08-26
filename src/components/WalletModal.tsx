@@ -187,3 +187,4 @@ export default function WalletModal({ isOpen, onClose, onConnected }: WalletModa
   );
 }
 // WalletModal displays available wallet options for connection.
+// Integrates with albedo, freighter and xbull.
