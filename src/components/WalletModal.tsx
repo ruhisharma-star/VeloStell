@@ -186,3 +186,4 @@ export default function WalletModal({ isOpen, onClose, onConnected }: WalletModa
     </div>
   );
 }
+// WalletModal displays available wallet options for connection.
