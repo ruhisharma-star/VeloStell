@@ -123,3 +123,4 @@ export function truncateAddress(addr: string, startChars = 5, endChars = 4): str
   return `${addr.slice(0, startChars)}...${addr.slice(-endChars)}`;
 }
 // walletKit provides the integration layer for Stellar wallets.
+// Final codebase formatting and comments review for August.
