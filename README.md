@@ -328,11 +328,3 @@ VeloStell/
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
----
-
-## 16. Git Credentials & Details
-
-- **GitHub Username**: `ruhisharma-star`
-- **Email**: `rushi536366373@gmail.com`
-- **Repository Link**: [https://github.com/ruhisharma-star/VeloStell](https://github.com/ruhisharma-star/VeloStell)
-
